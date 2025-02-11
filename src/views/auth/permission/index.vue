@@ -1,132 +1,160 @@
 <template>
   <div class="app-container">
-    <!-- 输入表单 -->
-    <el-form label-width="120px">
+    权限列表
+    <!--顶部查询表单-->
+    <el-card class="operate-container" shadow="never">
+      <el-form :inline="true" class="demo-form-inline">
+        <el-form-item label="权限名">
+          <el-input v-model="searchObj.name" placeholder="权限名"/>
+        </el-form-item>
 
-      <!-- 讲师头像 -->
-      <el-form-item label="上传文件">
-        <el-upload
-          :show-file-list="false"
-          :on-success="handleAvatarSuccess"
-          :before-upload="beforeAvatarUpload"
-          :on-error="handleAvatarError"
-          :action="BASE_API+'/os/upload/file'"
-          class="avatar-uploader">
-          <img v-if="goods.goodsImg" :src="goods.goodsImg">
-          <i v-else class="el-icon-plus avatar-uploader-icon"/>
-        </el-upload>
-      </el-form-item>
-<!--
-      <el-form-item>
-        <el-button type="primary" @click="saveOrUpdate()">保存</el-button>
-      </el-form-item>-->
-    </el-form>
+        <el-form-item label="权限code">
+          <el-input v-model="searchObj.code" placeholder="权限code" />
+        </el-form-item>
+        <el-button type="primary" icon="el-icon-search" @click="fetchData()">查询</el-button>
+        <el-button type="default" @click="resetData()">清空</el-button>
+      </el-form>
+    </el-card>
+
+    <!-- 工具按钮 -->
+    <el-card class="operate-container" shadow="never">
+      <i class="el-icon-tickets" style="margin-top: 5px"></i>
+      <span style="margin-top: 5px">权限列表</span>
+      <el-button class="btn-add" @click="insertPermission()" style="margin-left: 10px;">添加</el-button>
+    </el-card>
+    <!-- 表格 -->  <!--下面第一个就是复选框-->
+    <el-table
+      :data="searchList"
+      border
+      stripe
+      @selection-change="handleSelectionChange">
+      <el-table-column type="selection"/>
+      <el-table-column
+        label="#"
+        width="50">
+        <template slot-scope="scope">
+          {{ (page - 1) * limit + scope.$index + 1 }}
+        </template>
+      </el-table-column>
+      <el-table-column prop="name" label="权限名" width="240" />
+      <el-table-column prop="code" label="权限code" width="240" />
+      <el-table-column label="操作" width="200" align="center">
+        <template slot-scope="scope">
+          <el-button type="text" size="mini" @click="deletePermission(scope.row.id)">删除</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+    <!-- 分页组件 -->
+    <el-pagination
+      :current-page="page"
+      :total="total"
+      :page-size="limit"
+      :page-sizes="[5, 10, 20, 30, 40, 50, 100]"
+      style="padding: 30px 0; text-align: center;"
+      layout="total, sizes, prev, pager, next, jumper"
+      @size-change="changePageSize"
+      @current-change="changeCurrentPage"
+    />
   </div>
 </template>
+
 <script>
-  import AuthApi from '@/api/auth'
-  export default {
-    data() {
-      return {
-        BASE_API: 'http://localhost:63010',
-        // 初始化讲师默认数据
-        goods: { // 前面输入框绑定的teacher属性不一定要在这里定义
-          goodsTypeId: 1, // 这里有定义的只是需要定义默认值的
-          goodsPrice: 1,
-          goodsNum: 1
-        },
-        saveBtnDisabled: false // 保存按钮是否禁用，防止表单重复提交
-      }
-    },
-    // 页面渲染成功
-    created() {
-      if (this.$route.params.id) {
-        this.fetchDataById(this.$route.params.id)
-      }
-    },
-    methods: {
-      saveOrUpdate() {
-        // 禁用保存按钮
-        this.saveBtnDisabled = true
-        if (this.goods.id) {
-    	    this.updateData()
-          return
-  	    }
-        teacherApi.save(this.goods).then(response => {
-          this.$message({
-            type: 'success',
-            message: response.message
-          })
-          this.$message({
-            type: 'success',
-            message: '执行成功'
-          })
-          this.$router.push({path:'/goods/list'})
-        })
-      },
-      fetchDataById(id) {
-        teacherApi.getById(id).then(response => {
-          this.goods = response.data
-        })
-      },
-      // 根据id更新记录
-      updateData() {
-        // teacher数据的获取
-        teacherApi.updateById(this.goods).then(response => {
-          this.$message({
-            type: 'success',
-            message: response.message
-          })
-          this.$router.push({ path: '/goods/list' })
-        })
-      },
-      // 上传成功回调
-      handleAvatarSuccess(res, file) {
-        this.$message({
-          type: 'success',
-          message: '上传成功'
-        })
-        this.$router.push('/os/list');
-      },
-
-      // 错误处理
-      handleAvatarError() {
-        this.$message.error('上传失败（http失败）')
-      },
-
-      // 上传校验
-      beforeAvatarUpload(file) {
-        const isLt2M = file.size / 1024 / 1024 < 2
-        if (!isLt2M) {
-          this.$message.error('上传头像图片大小不能超过 2MB!')
-        }
-        return isLt2M
-      }
+import authApi from '@/api/auth'  // 这个引入方式是框架定义的，js文件的后缀js可省略。
+export default {
+  // 定义数据模型
+  data() { // 1、变量和初始值
+    return {
+      searchList: [
+      ], // 列表
+      total: 0, // 总记录数
+      page: 1, // 页码
+      limit: 5, // 每页记录数
+      searchObj: {}, // 查询条件
+      multipleSelection: []// 批量删除选中的记录列表
     }
+  },
+  created() {  // 2、页面渲染之前执行。调用fetchData
+    this.fetchData()
+  },
+  methods: {   // 3、定义方法
+               // 根据id删除数据
+    preview(code) {
+      this.$confirm('此操作将跳转到其他页面, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        return authApi.preview(code)
+      }).then((response) => {
+        window.location.href = 'http://192.168.101.65:9000' + response.data;
+      })
+    }, // 如果想在取消的时候也有提示，在catch中写。
+
+    handleSelectionChange(selection) {
+      this.multipleSelection = selection
+    },
+
+    // 每页记录数改变，size：回调参数，表示当前选中的“每页条数”
+    changePageSize(size) {
+      this.limit = size
+      this.fetchData()
+    },
+
+    // 改变页码，page：回调参数，表示当前选中的“页码”
+    changeCurrentPage(page) {
+      this.page = page
+      this.fetchData()
+    },
+
+    // 重置表单
+    resetData() {
+      this.searchObj = {}
+      this.fetchData()
+    },
+    insertPermission(){ // 点击add跳转到添加页面
+      this.$router.push({ path: '/reader/add' })
+    },
+
+    // 批量删除
+    deletePermission() {
+      if (this.multipleSelection.length === 0) {
+        this.$message.warning('请选择要删除的记录！')
+        return
+      }
+      this.$confirm('此操作将永久删除该记录, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        // 点击确定，远程调用ajax
+        // 遍历selection，将id取出放入id列表
+        var idList = []
+        this.multipleSelection.forEach(item => {
+          idList.push(item.id)
+        })
+        // 调用api
+        // return teacherApi.batchRemove(idList)
+      }).then((response) => {
+        this.fetchData()
+        this.$message.success(response.message)
+      }).catch(error => {
+        if (error === 'cancel') {
+          this.$message.info('取消删除')
+        }
+      })
+    },
+
+    fetchData() {
+      // TODO 接口定义 和 使用
+      // 调用api
+      authApi.pageList().then(response => {
+        debugger
+        this.searchList = response.items
+        this.total = response.counts
+        this.page = response.page
+        this.limit = response.pageSize
+      })
+    }// 这个框架的  request.js  自带一个响应拦截器，当code不是20000时，会自动进行错误处理，所以不需要写catch。
   }
+}
 </script>
-
-<style scoped>
-  .avatar-uploader .avatar-uploader-icon {
-    border: 1px dashed #d9d9d9;
-    border-radius: 6px;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-
-    font-size: 28px;
-    color: #8c939d;
-    width: 178px;
-    height: 178px;
-    line-height: 178px;
-    text-align: center;
-  }
-  .avatar-uploader .avatar-uploader-icon:hover {
-    border-color: #409EFF;
-  }
-  .avatar-uploader img {
-    width: 178px;
-    height: 178px;
-    display: block;
-  }
-</style>
