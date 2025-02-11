@@ -5,18 +5,18 @@
       <el-card class="operate-container" shadow="never">
         <el-form :inline="true" class="demo-form-inline">
         <el-form-item label="管理员名称">
-          <el-input v-model="searchObj.name" placeholder="管理员名" /> 
+          <el-input v-model="searchObj.name" placeholder="管理员名" />
         </el-form-item>
 
         <el-form-item label="管理员账号">
-          <el-input v-model="searchObj.account" placeholder="管理员账号" /> 
+          <el-input v-model="searchObj.account" placeholder="管理员账号" />
         </el-form-item>
 
         <el-form-item label="管理员电话号">
-          <el-input v-model="searchObj.phone" placeholder="管理员电话号" /> 
+          <el-input v-model="searchObj.phone" placeholder="管理员电话号" />
         </el-form-item>
 
-  
+
           <el-button type="primary" icon="el-icon-search" @click="fetchData()">查询</el-button>
           <el-button type="default" @click="resetData()">清空</el-button>
       </el-form>
@@ -58,9 +58,9 @@
       />
     </div>
   </template>
-  
+
   <script>
-  import teacherApi from '@/api/admin'  // 这个引入方式是框架定义的，js文件的后缀js可省略。
+  import teacherApi from '@/api/auth'  // 这个引入方式是框架定义的，js文件的后缀js可省略。
   export default {
     // 定义数据模型
     data() { // 1、变量和初始值
@@ -92,4 +92,3 @@
     }
   }
   </script>
-  
