@@ -1,15 +1,15 @@
 <template>
   <div class="app-container">
-    管理员列表
+    角色列表
     <!--顶部查询表单-->
     <el-card class="operate-container" shadow="never">
       <el-form :inline="true" class="demo-form-inline">
-        <el-form-item label="管理员昵称">
-          <el-input v-model="searchObj.nickName" placeholder="管理员昵称"/>
+        <el-form-item label="角色名">
+          <el-input v-model="searchObj.name" placeholder="角色名"/>
         </el-form-item>
 
-        <el-form-item label="账号">
-          <el-input v-model="searchObj.account" placeholder="管理员账号" />
+        <el-form-item label="角色code">
+          <el-input v-model="searchObj.code" placeholder="角色code" />
         </el-form-item>
         <el-button type="primary" icon="el-icon-search" @click="fetchData()">查询</el-button>
         <el-button type="default" @click="resetData()">清空</el-button>
@@ -19,7 +19,7 @@
     <!-- 工具按钮 -->
     <el-card class="operate-container" shadow="never">
       <i class="el-icon-tickets" style="margin-top: 5px"></i>
-      <span style="margin-top: 5px">管理员列表</span>
+      <span style="margin-top: 5px">角色列表</span>
       <el-button class="btn-add" @click="insertAdmin()" style="margin-left: 10px;">添加</el-button>
     </el-card>
     <!-- 表格 -->  <!--下面第一个就是复选框-->
@@ -36,18 +36,13 @@
           {{ (page - 1) * limit + scope.$index + 1 }}
         </template>
       </el-table-column>
-      <el-table-column prop="nickName" label="昵称" width="240" />
-      <el-table-column prop="account" label="账号" width="240" />
-      <el-table-column label="管理员类型" width="90">
-        <template slot-scope="scope">
-          <el-tag v-if="scope.row.type === 0" type="success" size="mini">管理员</el-tag>
-          <el-tag v-if="scope.row.type === 1" size="mini">业务员</el-tag>
-        </template>
-      </el-table-column>
+      <el-table-column prop="name" label="角色名" width="240" />
+      <el-table-column prop="code" label="角色code" width="240" />
       <el-table-column prop="createDate" label="创建时间" width="240" />
       <el-table-column label="操作" width="200" align="center">
         <template slot-scope="scope">
-          <el-button type="text" size="mini" @click="banAdmin(scope.row.id)">停用</el-button>
+          <el-button type="text" size="mini" @click="banAdmin(scope.row.id)">删除</el-button>
+          <el-button type="text" size="mini" @click="banAdmin(scope.row.id)">权限管理</el-button>
         </template>
       </el-table-column>
     </el-table>
