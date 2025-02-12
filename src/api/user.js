@@ -5,10 +5,11 @@ export function login(data) {
     account: data.username, // 将 username 更改为 account
     password: data.password // 保留 password 字段
   }
+  console.log('111', newData)
   return request({
     url: '/adminAuth/adminLogin',
     method: 'post',
-    newData
+    data
   })
 }
 
