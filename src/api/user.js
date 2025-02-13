@@ -1,11 +1,7 @@
 import request from '@/utils/request'
 
 export function login(data) {
-  const newData = {
-    account: data.username, // 将 username 更改为 account
-    password: data.password // 保留 password 字段
-  }
-  console.log('111', newData)
+  data.account = data.username
   return request({
     url: '/adminAuth/adminLogin',
     method: 'post',

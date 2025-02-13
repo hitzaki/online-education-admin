@@ -44,7 +44,7 @@
           <el-tag v-if="scope.row.type === 1" size="mini">业务员</el-tag>
         </template>
       </el-table-column>
-      <el-table-column prop="createDate" label="创建时间" width="240" />
+      <el-table-column prop="createTime" label="创建时间" width="240" :formatter="dateFormat" />
       <el-table-column label="操作" width="200" align="center">
         <template slot-scope="scope">
           <el-button type="text" size="mini" @click="banAdmin(scope.row.id)">停用</el-button>
@@ -66,7 +66,8 @@
 </template>
 
 <script>
-import authApi from '@/api/auth'  // 这个引入方式是框架定义的，js文件的后缀js可省略。
+import authApi from '@/api/auth'
+import {dateFormat} from "@/utils/format";  // 这个引入方式是框架定义的，js文件的后缀js可省略。
 export default {
   // 定义数据模型
   data() { // 1、变量和初始值
@@ -83,7 +84,8 @@ export default {
   created() {  // 2、页面渲染之前执行。调用fetchData
     this.fetchData()
   },
-  methods: {   // 3、定义方法
+  methods: {
+    dateFormat,   // 3、定义方法
     // 根据id删除数据
     preview(code) {
       this.$confirm('此操作将跳转到其他页面, 是否继续?', '提示', {
@@ -91,7 +93,7 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        return authApi.preview(code)
+        // return authApi.preview(code)
       }).then((response) => {
         window.location.href = 'http://192.168.101.65:9000' + response.data;
       })
@@ -119,7 +121,7 @@ export default {
       this.fetchData()
     },
     insertAdmin(){ // 点击add跳转到添加页面
-      this.$router.push({ path: '/reader/add' })
+      // this.$router.push({ path: '/reader/add' })
     },
 
     // 批量删除
@@ -152,9 +154,9 @@ export default {
     },
 
     fetchData() {
-      // TODO 接口定义 和 使用
-      // 调用api
-      authApi.pageList().then(response => {
+      this.searchObj.pageNo = this.page
+      this.searchObj.pageSize = this.limit
+      authApi.adminPage(this.searchObj).then(response => {
         debugger
         this.searchList = response.items
         this.total = response.counts
