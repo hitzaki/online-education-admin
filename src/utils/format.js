@@ -9,3 +9,9 @@ export function dateFormat(row, column) {
   const seconds = ('0' + date.getSeconds()).slice(-2)
   return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`
 }
+
+export function buildPageData(searchObj, page, limit) {
+  searchObj.pageNo = page
+  searchObj.pageSize = limit
+  return searchObj
+}

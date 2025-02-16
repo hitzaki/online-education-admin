@@ -69,6 +69,13 @@ export const constantRoutes = [
         component: () => import('@/views/auth/admin'),
         meta: { title: '管理员', icon: 'table' }
       },
+      {
+        path: 'adminInsert',
+        name: '管理员新增',
+        component: () => import('@/views/auth/admin/AdminInsert'),
+        meta: { title: '管理员新增', icon: 'table' },
+        hidden: true
+      },
       // {
       //   path: 'form',
       //   name: '管理员添加',

@@ -15,7 +15,7 @@
       <el-form-item label="确认密码">
         <el-input v-model="admin.comparePassword" />
       </el-form-item>
-      <el-radio-group v-model="admin.type" size="large">
+      <el-radio-group style="margin-left: 50px; margin-bottom: 30px" v-model="admin.typeText" size="large">
         <el-radio-button label="管理员" value="0" />
         <el-radio-button label="业务员" value="1" />
       </el-radio-group>
@@ -26,7 +26,7 @@
   </div>
 </template>
 <script>
-import linkApi from '@/api/link'
+import authApi from '@/api/auth'
 export default {
   data() {
     return {
@@ -38,24 +38,24 @@ export default {
   },
   // 页面渲染成功
   created() {
-    if (this.$route.params.id) {
-      this.fetchDataById(this.$route.params.id)
-    }
   },
   methods: {
     saveOrUpdate() {
       // 禁用保存按钮
       this.saveBtnDisabled = true
-      if (this.admin.id) {
-        this.updateData()
-        return
+      if (this.admin.typeText = '管理员') {
+        this.admin.type = 0
       }
-      linkApi.create(this.admin).then(response => {
+      if (this.admin.typeText = '业务员 ') {
+        this.admin.type = 1
+      }
+      this.admin.avatar = 'https://avatars.githubusercontent.com/u/89912002?v=4'
+      authApi.adminInsert(this.admin).then(response => {
         this.$message({
           type: 'success',
-          message: '创建短链接成功'
+          message: '创建管理员成功'
         })
-        this.$router.push({path:'/link/list'})
+        this.$router.push({path:'/auth/adminManage'})
       })
     }
     /*,

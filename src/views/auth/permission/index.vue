@@ -59,7 +59,8 @@
 </template>
 
 <script>
-import authApi from '@/api/auth'  // 这个引入方式是框架定义的，js文件的后缀js可省略。
+import authApi from '@/api/auth'
+import { buildPageData } from '@/utils/format'  // 这个引入方式是框架定义的，js文件的后缀js可省略。
 export default {
   // 定义数据模型
   data() { // 1、变量和初始值
@@ -132,8 +133,6 @@ export default {
         this.multipleSelection.forEach(item => {
           idList.push(item.id)
         })
-        // 调用api
-        // return teacherApi.batchRemove(idList)
       }).then((response) => {
         this.fetchData()
         this.$message.success(response.message)
@@ -145,16 +144,14 @@ export default {
     },
 
     fetchData() {
-      // TODO 接口定义 和 使用
-      // 调用api
-      authApi.pageList().then(response => {
+      authApi.permissionPage(buildPageData(this.searchObj, this.page, this.limit)).then(response => {
         debugger
         this.searchList = response.items
         this.total = response.counts
         this.page = response.page
         this.limit = response.pageSize
       })
-    }// 这个框架的  request.js  自带一个响应拦截器，当code不是20000时，会自动进行错误处理，所以不需要写catch。
+    }
   }
 }
 </script>
