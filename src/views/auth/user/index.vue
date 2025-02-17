@@ -1,15 +1,15 @@
 <template>
   <div class="app-container">
-    管理员列表
+    用户列表
     <!--顶部查询表单-->
     <el-card class="operate-container" shadow="never">
       <el-form :inline="true" class="demo-form-inline">
-        <el-form-item label="管理员昵称">
-          <el-input v-model="searchObj.nickName" placeholder="管理员昵称"/>
+        <el-form-item label="用户昵称">
+          <el-input v-model="searchObj.nickName" placeholder="用户昵称"/>
         </el-form-item>
 
-        <el-form-item label="账号">
-          <el-input v-model="searchObj.account" placeholder="管理员账号" />
+        <el-form-item label="电话号">
+          <el-input v-model="searchObj.phone" placeholder="电话号" />
         </el-form-item>
         <el-button type="primary" icon="el-icon-search" @click="fetchData()">查询</el-button>
         <el-button type="default" @click="resetData()">清空</el-button>
@@ -19,7 +19,7 @@
     <!-- 工具按钮 -->
     <el-card class="operate-container" shadow="never">
       <i class="el-icon-tickets" style="margin-top: 5px"></i>
-      <span style="margin-top: 5px">管理员列表</span>
+      <span style="margin-top: 5px">用户列表</span>
       <el-button class="btn-add" @click="insertAdmin()" style="margin-left: 10px;">添加</el-button>
     </el-card>
     <!-- 表格 -->  <!--下面第一个就是复选框-->
@@ -37,17 +37,12 @@
         </template>
       </el-table-column>
       <el-table-column prop="nickName" label="昵称" width="240" />
-      <el-table-column prop="account" label="账号" width="240" />
-      <el-table-column label="管理员类型" width="90">
-        <template slot-scope="scope">
-          <el-tag v-if="scope.row.type === 0" type="success" size="mini">管理员</el-tag>
-          <el-tag v-if="scope.row.type === 1" size="mini">业务员</el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column prop="createDate" label="创建时间" width="240" />
+      <el-table-column prop="phone" label="电话号" width="240" />
+      <el-table-column prop="createTime" label="创建时间" width="240" :formatter="dateFormat" />
       <el-table-column label="操作" width="200" align="center">
         <template slot-scope="scope">
-          <el-button type="text" size="mini" @click="banAdmin(scope.row.id)">停用</el-button>
+          <el-button type="text" size="mini" @click="userBan(scope.row.id)">封禁</el-button>
+          <el-button type="text" size="mini" @click="userUnban(scope.row.id)">解封</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -66,7 +61,8 @@
 </template>
 
 <script>
-import authApi from '@/api/auth'  // 这个引入方式是框架定义的，js文件的后缀js可省略。
+import authApi from '@/api/auth'
+import {buildPageData, dateFormat} from "@/utils/format";  // 这个引入方式是框架定义的，js文件的后缀js可省略。
 export default {
   // 定义数据模型
   data() { // 1、变量和初始值
@@ -83,7 +79,8 @@ export default {
   created() {  // 2、页面渲染之前执行。调用fetchData
     this.fetchData()
   },
-  methods: {   // 3、定义方法
+  methods: {
+    dateFormat,   // 3、定义方法
                // 根据id删除数据
     preview(code) {
       this.$confirm('此操作将跳转到其他页面, 是否继续?', '提示', {
@@ -122,39 +119,35 @@ export default {
       this.$router.push({ path: '/reader/add' })
     },
 
-    // 批量删除
-    banAdmin() {
-      if (this.multipleSelection.length === 0) {
-        this.$message.warning('请选择要删除的记录！')
-        return
-      }
-      this.$confirm('此操作将永久删除该记录, 是否继续?', '提示', {
+    userBan(id) {
+      this.$confirm('是否确认操作?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        // 点击确定，远程调用ajax
-        // 遍历selection，将id取出放入id列表
-        var idList = []
-        this.multipleSelection.forEach(item => {
-          idList.push(item.id)
-        })
         // 调用api
-        // return teacherApi.batchRemove(idList)
+        return authApi.userBan({ userId: id })
       }).then((response) => {
         this.fetchData()
-        this.$message.success(response.message)
-      }).catch(error => {
-        if (error === 'cancel') {
-          this.$message.info('取消删除')
-        }
-      })
+        this.$message.success(response.msg)
+      }).catch()
+    },
+    userUnban(id) {
+      this.$confirm('是否确认操作?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        // 调用api
+        return authApi.userUnban({ userId: id })
+      }).then((response) => {
+        this.fetchData()
+        this.$message.success(response.msg)
+      }).catch()
     },
 
     fetchData() {
-      // TODO 接口定义 和 使用
-      // 调用api
-      authApi.pageList().then(response => {
+      authApi.userPage(buildPageData(this.searchObj, this.page, this.limit)).then(response => {
         debugger
         this.searchList = response.items
         this.total = response.counts

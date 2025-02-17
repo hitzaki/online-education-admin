@@ -2,11 +2,11 @@
   <div class="app-container">
     <!-- 输入表单 -->
     <el-form label-width="120px">
-      <el-form-item label="权限名">
-        <el-input v-model="permission.name" />
+      <el-form-item label="角色名">
+        <el-input v-model="role.name" />
       </el-form-item>
-      <el-form-item label="权限code">
-        <el-input v-model="permission.code" />
+      <el-form-item label="角色code">
+        <el-input v-model="role.code" />
       </el-form-item>
       <el-form-item>
         <el-button type="primary" @click="saveOrUpdate()">保存</el-button>
@@ -20,7 +20,7 @@ export default {
   data() {
     return {
       BASE_API: 'http://8.146.200.93:8888',
-      permission: {
+      role: {
       },
       saveBtnDisabled: false // 保存按钮是否禁用，防止表单重复提交
     }
@@ -35,12 +35,12 @@ export default {
     saveOrUpdate() {
       // 禁用保存按钮
       this.saveBtnDisabled = true
-      authApi.permissionInsert(this.permission).then(response => {
+      authApi.roleInsert(this.role).then(response => {
         this.$message({
           type: 'success',
           message: '创建权限成功'
         })
-        this.$router.push({path:'/auth/permissionManage'})
+        this.$router.push({path:'/auth/roleManage'})
       })
     }
   }

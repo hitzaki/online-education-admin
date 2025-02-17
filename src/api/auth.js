@@ -17,7 +17,6 @@ export default {
     return request({
       url: `${api_name}/adminInsert`,
       method: 'post',
-      params: { token: getGToken() },
       data: adminObj
     })
   },
@@ -25,7 +24,6 @@ export default {
     return request({
       url: `${api_name}/adminBan`,
       method: 'post',
-      params: { token: getGToken() },
       data: data
     })
   },

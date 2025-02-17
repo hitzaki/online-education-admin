@@ -102,10 +102,24 @@ export const constantRoutes = [
         meta: { title: '角色', icon: 'table' }
       },
       {
+        path: 'roleInsert',
+        name: '角色新增',
+        component: () => import('@/views/auth/role/RoleInsert'),
+        meta: { title: '角色新增', icon: 'table' },
+        hidden: true
+      },
+      {
         path: 'permissionManage',
         name: '权限',
         component: () => import('@/views/auth/permission'),
         meta: { title: '权限', icon: 'table' }
+      },
+      {
+        path: 'permissionInsert',
+        name: '权限新增',
+        component: () => import('@/views/auth/permission/PermissionInsert'),
+        meta: { title: '权限新增', icon: 'table' },
+        hidden: true
       },
     ]
   },

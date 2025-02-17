@@ -44,6 +44,12 @@
           <el-tag v-if="scope.row.type === 1" size="mini">业务员</el-tag>
         </template>
       </el-table-column>
+      <el-table-column label="状态" width="90">
+        <template slot-scope="scope">
+          <el-tag v-if="scope.row.status === 0" type="success" size="mini">使用</el-tag>
+          <el-tag v-if="scope.row.status === 1" size="mini">停用</el-tag>
+        </template>
+      </el-table-column>
       <el-table-column prop="createTime" label="创建时间" width="240" :formatter="dateFormat" />
       <el-table-column label="操作" width="200" align="center">
         <template slot-scope="scope">
@@ -116,6 +122,7 @@ export default {
     },
 
     banAdmin(id) {
+      console.log(this.searchList)
       this.$confirm('此操作将无法撤销, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',

@@ -38,6 +38,7 @@
       </el-table-column>
       <el-table-column prop="name" label="权限名" width="240" />
       <el-table-column prop="code" label="权限code" width="240" />
+      <el-table-column prop="createTime" label="创建时间" width="240" :formatter="dateFormat" />
       <el-table-column label="操作" width="200" align="center">
         <template slot-scope="scope">
           <el-button type="text" size="mini" @click="deletePermission(scope.row.id)">删除</el-button>
@@ -60,7 +61,7 @@
 
 <script>
 import authApi from '@/api/auth'
-import { buildPageData } from '@/utils/format'  // 这个引入方式是框架定义的，js文件的后缀js可省略。
+import {buildPageData, dateFormat} from '@/utils/format'  // 这个引入方式是框架定义的，js文件的后缀js可省略。
 export default {
   // 定义数据模型
   data() { // 1、变量和初始值
@@ -77,20 +78,8 @@ export default {
   created() {  // 2、页面渲染之前执行。调用fetchData
     this.fetchData()
   },
-  methods: {   // 3、定义方法
-               // 根据id删除数据
-    preview(code) {
-      this.$confirm('此操作将跳转到其他页面, 是否继续?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }).then(() => {
-        return authApi.preview(code)
-      }).then((response) => {
-        window.location.href = 'http://192.168.101.65:9000' + response.data;
-      })
-    }, // 如果想在取消的时候也有提示，在catch中写。
-
+  methods: {
+    dateFormat,
     handleSelectionChange(selection) {
       this.multipleSelection = selection
     },
@@ -113,34 +102,22 @@ export default {
       this.fetchData()
     },
     insertPermission(){ // 点击add跳转到添加页面
-      this.$router.push({ path: '/reader/add' })
+      this.$router.push({ path: '/auth/permissionInsert' })
     },
 
     // 批量删除
-    deletePermission() {
-      if (this.multipleSelection.length === 0) {
-        this.$message.warning('请选择要删除的记录！')
-        return
-      }
-      this.$confirm('此操作将永久删除该记录, 是否继续?', '提示', {
+    deletePermission(id) {
+      this.$confirm('此操作将无法撤销, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        // 点击确定，远程调用ajax
-        // 遍历selection，将id取出放入id列表
-        var idList = []
-        this.multipleSelection.forEach(item => {
-          idList.push(item.id)
-        })
+        // 调用api
+        return authApi.permissionDelete({ permissionId: id })
       }).then((response) => {
         this.fetchData()
-        this.$message.success(response.message)
-      }).catch(error => {
-        if (error === 'cancel') {
-          this.$message.info('取消删除')
-        }
-      })
+        this.$message.success(response.msg)
+      }).catch()
     },
 
     fetchData() {
